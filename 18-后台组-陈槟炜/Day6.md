@@ -195,14 +195,24 @@ class Outer{
 
 ```
 ### 六、异常
-1. 就是程序正在运行时出现不正常情况
+1. 就是程序正在运行时出现不正常情况，**对问题进行描述，封装成对象**
+    - 好处：
+        - 见问题进行封装
+        - 将正常流程代码和问题处理代码相分离，方便阅读
 2. 对问题的划分
     1. 严重的问题
         - 对于严重的，java通过Erroe类进行描述。对Error一般不编写针对性的代码对其进行处理
     2. 非严重的问题
         - 对于非严重的，java通过Expection类进行描述，对于Expection都可以使用针对性地处理方式进行处理。
-3. 无论Error或者Expection都有一些共性的内容,函数有异常发生，函数就结束了
-4. 异常的处理：  
+3. 异常的体系：
+```
+Throwable
+    |--Error
+    |--Exception
+        |--RuntimeException
+```
+4. 无论Error或者Expection都有一些共性的内容,函数有异常发生，函数就结束了
+5. 异常的处理：  
 java提供了特有的语句进行处理
 ```
 try
@@ -218,28 +228,55 @@ finally
     一定执行的语句;
 }
 ``` 
-5. 对捕获的方法进行常见方法操作</br>
-    String getMessage();</br>
-    String toString();     /by zero //异常名称 异常信息
+6. 对捕获的方法进行常见方法操作</br>
+    String getMessage();    //异常信息</br>
+    String toString();     /by zero //异常名称 异常信息</br>
     void printStackTrace();
     //异常名称 异常信息 异常出现的位置
-6. jvm默认的异常处理机制，就是在调用printStackTrace方法，打印异常堆栈的
-7. throws关键字
+7. jvm默认的异常处理机制，就是在调用printStackTrace方法，打印异常堆栈的
+8. throws关键字
     - 通过throws关键字声明可能会出现的问题
     - throws Exception</br>
         可有两种形式解决，捕捉或者抛出去</br>
         1. 调用的时候抛出去,抛给jvm处理，throws Exception
         2. 捕捉：catch(Exception e){
         }
-8. 对多异常处理
+9. 对多异常处理
     1. 声明异常时，建议声明更为具体的异常,这样处理可以更具体
         - 如:throws ArithmeticException
     2. 对方声明几个异常，就对应有几个catch块，不要定义多余的catch块</br>
     　如果多个catch块中的异常出现继承关系，父类异常catch快放在最下面
-9. 建议在进行catch处理时，catch中一定要定义具体的处理方式。
+10. 建议在进行catch处理时，catch中一定要定义具体的处理方式。
+
 ### 七、自定义异常
-1. 当函数内部出现throw抛出异常对象，那么就必须给对应的处理动作，要么在内部try catch处理。要么在函数上声明让调用者处理
-2. 如何自定义异常信息？</br>
-　因为父类已经把异常信息的操作都完成了，所以子类只要在构造时，将异常信息传递通过super语句传递给父类，那么就可以直接通过getMessage方法获取自定义的异常信息
-３. 自定义异常，必须是自定义类继承Exception
-    - 原因：异常体系有一个特点，因为异常类和异常对象都被抛出他们都具备可抛性。这个可抛性是        Throwable这个体系操作，只有这个体系中的类和对象才可以被throw和throws操作
+1. 定义在继承Exception或者RuntimeException
+    - 为了让该自定义类具备可抛性
+    - 让该类具备操作异常的共性方法
+2. 格式：
+```
+class MyException() extends Exception
+{
+    MyException(String e)
+    {
+        super(e);
+    }
+}
+```
+3. 自定义异常，必须是自定义类继承Exception  
+原因：异常体系有一个特点，因为异常类和异常对象都被抛出他们都具备可抛性。这个可抛性是        Throwable这个体系操作，只有这个体系中的类和对象才可以被throw和throws操作
+4. **throws和throw的区别：**</br>
+    1.throws 使用在函数上</br>
+    　throw使用在函数内</br>
+    2.throws后面跟着是一个异常类。可以是多个，用逗号隔开</br>
+    　throw后跟的是异常对象</br>
+5. Exception中有一个特殊的子类异常RuntimeException运行时异常</br>
+    - 如果在函数内抛出异常，函数上就可以不用声明，编译通过
+    - 如果在函数上声明异常，调用者可以不用进行处理，编译通过
+6. 自定义异常时，如果该异常的发生，无法再继续进行运算，就让自定义异常继承RuntimeException.
+7. 对于异常分两类：</br>
+    1. 编译时异常
+        - 该异常在编译时，如果没有处理（没有抛出，也没有try），编译失败
+        - 该异常被标识，代表这可以被处理
+    2. 运行时异常（RuntimeException以及其子类)
+        - 在编译时，不需要处理，编译器不检查。
+        - 该异常的发生，建议不处理，让程序停止。需要对代码进行修正。
